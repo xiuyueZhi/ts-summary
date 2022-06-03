@@ -159,13 +159,53 @@ export class AdvancedType {
     };
 
     // 函数交叉类型
-    type F1 = (a: string, b: string) => void;
-    type F2 = (a: number, b: number) => void;
+    type F1 = (a: string, b: string) => string;
+    type F2 = (a: any, b: number) => number;
 
-    let f: F1 & F2 = (a: string | number, b: string | number) => {};
+    function overloadF(a: string, b: string): string;
+    function overloadF(a: any, b: number): number;
+    function overloadF(a: any, b: string | number) {
+      return b;
+    }
+
+    let f: F1 & F2 = overloadF;
     f('hello', 'world');
     f(1, 2);
-    f(1, 'test'); // Error
+    f(true, '2');
+    // f(1, 'test'); // Error
+
+    // 函数联合类型
+    type F11 = (a: string, b: string) => string;
+    type F21 = (a: any, b: number) => number;
+    let f2: F11 | F21 = (a: any, b: never) => {
+      return a;
+    };
+    let f3: F11 | F21 = (a: string, b: string) => {
+      return a;
+    };
+    let f4: F11 | F21 = (a: any, b: number) => {
+      return a;
+    };
+    let neverValue: never;
+    // f2('hello', 'world');
+    f2(1, neverValue);
+    f2('1', neverValue);
+    console.log(f2(true, neverValue));
+    f3('1', '1');
+    f4(1, 1);
+    // f2(1, 'test'); // Error
+    f2(neverValue, neverValue);
+
+    // 对象联合‘
+    // type obj1 = {a: number, b: string}
+    // type obj2 = {a: string, b: string, c: number}
+    // type obj3 = obj1 | obj2
+    // let obj4:obj3 = {a: true, b: '123'}
+
+    // type obj11 = {a: {a: number, b: string}}
+    // type obj21 = {a:{a: string, b: string, c: number}}
+    // type obj31 = obj11 | obj21
+    // let obj41:obj31 = {a: true}
 
     console.log(ab);
   }
@@ -332,10 +372,10 @@ export class AdvancedType {
     type UserReadOnly = { readonly [P in keyof User]: User[P] };
     type UserPartial = { [P in keyof User]?: User[P] };
 
-    type Getters<T> = {
-      [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];
-    };
-    type UserGet = Getters<User>;
+    // type Getters<T> = {
+    //   [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];
+    // };
+    // type UserGet = Getters<User>;
   }
 }
 
@@ -353,7 +393,7 @@ let visitAnimal = (animal: Animal) => {
 
 let visitDog = (dog: Dog) => {
   dog.age;
-  dog.bark();
+  dog.bark;
 };
 
 const animal: Animal = { age: 10 };
